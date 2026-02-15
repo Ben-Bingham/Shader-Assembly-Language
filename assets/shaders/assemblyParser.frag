@@ -49,23 +49,27 @@ struct Instruction {
 const int instructionCount = 10;
 Instruction instructions[instructionCount];
 
+vec4 registers[16];
+
 void main() {
-	/*
-	getComponent0(pc, s0) # s0 = pc.x
-	getComponent1(pc, s1) # s1 = pc.y
+	// Build the instructions list:
+	instructions[0] = Instruction(inst_getComponent0, reg_pc, reg_s0, 0, 0.0); // getComponent0(pc, s0) # s0 = pc.x
+	instructions[1] = Instruction(inst_getComponent1, reg_pc, reg_s1, 0, 0.0); // getComponent1(pc, s1) # s1 = pc.y
 
-	getComponent0(s, s3)  # s3 = s.x
-	reciprocal(s3, s2)    # s2 = 1 / s3
-	getComponent1(s, s4)  # s4 = s.y
-	reciprocal(s4, s3)    # s3 = 1 / s4
+	instructions[2] = Instruction(inst_getComponent0, reg_s, reg_s3, 0, 0.0);  // getComponent0(s, s3)  # s3 = s.x
+	instructions[3] = Instruction(inst_reciprocal, reg_s3, reg_s2, 0, 0.0);    // reciprocal(s3, s2)    # s2 = 1 / s3
+	instructions[4] = Instruction(inst_getComponent1, reg_s, reg_s4, 0, 0.0);  // getComponent1(s, s4)  # s4 = s.y
+	instructions[5] = Instruction(inst_reciprocal, reg_s4, reg_s3, 0, 0.0);    // reciprocal(s4, s3)    # s3 = 1 / s4
 
-	multiply(s0, s2, s0)  # s0 = s0 * s2
-	multiply(s1, s3, s1)  # s1 = s1 * s3
+	instructions[6] = Instruction(inst_multiply, reg_s0, reg_s2, reg_s0, 0.0); // multiply(s0, s2, s0)  # s0 = s0 * s2
+	instructions[7] = Instruction(inst_multiply, reg_s1, reg_s3, reg_s1, 0.0); // multiply(s1, s3, s1)  # s1 = s1 * s3
 
-	setComponent0(c, s0)  # c.x = s0
-	setComponent1(c, s1)  # c.y = s1
-	*/
+	instructions[8] = Instruction(inst_setComponent0, reg_c, reg_s0, 0, 0.0);  // setComponent0(c, s0)  # c.x = s0
+	instructions[9] = Instruction(inst_setComponent1, reg_c, reg_s1, 0, 0.0);  // setComponent1(c, s1)  # c.y = s1
 
+	registers[reg_c] = vec4(0.0); // Zero out the color register
+	// Execute the instruciton list
+	// TODO
 
-	outFragColor = vec4(color.xyz, 1.0);
+	outFragColor = registers[reg_c]; // Assign the final color to the color register
 }
