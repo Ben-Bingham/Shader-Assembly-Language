@@ -91,6 +91,26 @@ void main() {
 // TODO modifying read only registers
 void ExecuteInstruction(Instruction instruction, inout vec4 registers[16]) {
 	switch (instruction.OpCode) {
+		case inst_add:
+			registers[instruction.r3].x = registers[instruction.r1].x + registers[instruction.r2].x;
+			break;
+
+		case inst_multiply:
+			registers[instruction.r3].x = registers[instruction.r1].x * registers[instruction.r2].x;
+			break;
+
+		case inst_negate:
+			registers[instruction.r2].x = -registers[instruction.r1].x;
+			break;
+
+		case inst_reciprocal:
+			registers[instruction.r2].x = 1.0 / registers[instruction.r1].x;
+			break;
+
+		case inst_move:
+			registers[instruction.r2].x = registers[instruction.r1].x;
+			break;
+
 		case inst_getComponent0:
 			registers[instruction.r2].x = registers[instruction.r1].x;
 			break;
@@ -107,14 +127,6 @@ void ExecuteInstruction(Instruction instruction, inout vec4 registers[16]) {
 			registers[instruction.r2].x = registers[instruction.r1].w;
 			break;
 
-		case inst_reciprocal:
-			registers[instruction.r2].x = 1.0 / registers[instruction.r1].x;
-			break;
-
-		case inst_multiply:
-			registers[instruction.r3].x = registers[instruction.r1].x * registers[instruction.r2].x;
-			break;
-
 		case inst_setComponent0:
 			registers[instruction.r1].x = registers[instruction.r2].x;
 			break;
@@ -129,6 +141,10 @@ void ExecuteInstruction(Instruction instruction, inout vec4 registers[16]) {
 
 		case inst_setComponent3:
 			registers[instruction.r1].w = registers[instruction.r2].x;
+			break;
+		
+		case inst_load:
+			registers[instruction.r1].x = instruction.constant;
 			break;
 	}
 }
