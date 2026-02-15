@@ -30,20 +30,20 @@ int main() {
 
     RenderTarget rendererTarget{ defaultFramebufferSize };
 
-    Shader solidShader{
-        "assets\\shaders\\solid.vert",
-        "assets\\shaders\\solid.frag"
+    Shader assemblyParser{
+        "assets\\shaders\\assemblyParser.vert",
+        "assets\\shaders\\assemblyParser.frag"
     };
 
     Camera camera{ };
 
     VertexAttributeObject vao{ };
 
-    Shape triangle = GetTriangle();
+    Shape square = GetSquare();
 
-    VertexBufferObject vbo{ triangle.vertices };
+    VertexBufferObject vbo{ square.vertices };
 
-    ElementBufferObject ebo{ triangle.indices };
+    ElementBufferObject ebo{ square.indices };
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
@@ -84,17 +84,17 @@ int main() {
             glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            solidShader.Bind();
-            solidShader.SetVec3("color", glm::vec3{ 1.0f, 0.0f, 0.0f });
+            assemblyParser.Bind();
+            assemblyParser.SetVec3("color", glm::vec3{ 1.0f, 0.0f, 0.0f });
 
             glm::mat4 projection = glm::perspective(glm::radians(camera.fov), (float)rendererTarget.GetSize().x / (float)rendererTarget.GetSize().y, camera.nearPlane, camera.farPlane);
             transform.CalculateMatrix();
             glm::mat4 mvp = projection * camera.View() * transform.matrix;
 
-            solidShader.SetMat4("mvp", mvp);
+            assemblyParser.SetMat4("mvp", mvp);
 
             vao.Bind();
-            glDrawElements(GL_TRIANGLES, triangle.Size(), GL_UNSIGNED_INT, nullptr);
+            glDrawElements(GL_TRIANGLES, square.Size(), GL_UNSIGNED_INT, nullptr);
 
             rendererTarget.Unbind();
         }
