@@ -11,8 +11,27 @@ Every program written in Shader Assembly will be executed for each and every pix
 * Vector: Always has four components
 
 ### Registers
-* s0 -> s7: Scaler registers
-* v0 -> v7: Vector registers
+* s0 -> s5: Scaler registers
+* v0 -> v5: Vector registers
+
+| Number | Name | Type | Read/Write | Use |
+|:---:|:---:|:---:|:---:|:---:|
+| 00 | s0 | Scaler | rw | - |
+| 01 | s1 | Scaler | rw | - |
+| 02 | s2 | Scaler | rw | - |
+| 03 | s3 | Scaler | rw | - |
+| 04 | s4 | Scaler | rw | - |
+| 05 | s5 | Scaler | rw | - |
+| 06 | v0 | Vector | rw | - |
+| 07 | v1 | Vector | rw | - |
+| 08 | v2 | Vector | rw | - |
+| 09 | v3 | Vector | rw | - |
+| 10 | v4 | Vector | rw | - |
+| 11 | v5 | Vector | rw | - |
+| 12 | pc | Vector | r | Pixel coordinate |
+| 13 | t | Scaler | r | Time |
+| 14 | s | Vector | r | Size of screen in pixels |
+| 15 | c | Vector | w | Output color |
 
 ### Instructions
 #### Types:
