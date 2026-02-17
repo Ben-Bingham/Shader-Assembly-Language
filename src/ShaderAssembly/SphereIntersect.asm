@@ -23,6 +23,17 @@
 # outFragColor = vec4(discriminant, discriminant, discriminant, 1.0);
 
 # Verbose GLSL version:
+# vec4 uv;
+# uv.x = registers[reg_pc].x;
+# uv.y = registers[reg_pc].y;
+# uv.z = 0.0;
+# uv.w = 0.0;
+# 
+# float inverseSizeX = 1.0 / registers[reg_s].x;
+# float inverseSizeY = 1.0 / registers[reg_s].y;
+# 
+# uv.x = uv.x * inverseSizeX;
+# uv.y = uv.y * inverseSizeY;
 # uv.x = uv.x * 2.0;
 # uv.y = uv.y * 2.0;
 # 
