@@ -1,6 +1,10 @@
 #include "ShaderAssemblyCompiler.h"
 
+#include <sstream>
+#include <iostream>
+
 #include <glm/glm.hpp>
+#include <cctype>
 
 // Registers:
 const unsigned int reg_z = 0;
@@ -84,6 +88,27 @@ unsigned int BuildRS(int opcode, int r1, int constant) {
 
 std::vector<unsigned int> Compile(std::string code) {
     std::vector<unsigned int> instructions;
+
+    std::stringstream stream{ code };
+    std::string line;
+
+    while (std::getline(stream, line, '\n')) {
+        // Remove comments
+        size_t commentStart = line.find_first_of('#');
+        line = line.substr(0, commentStart);
+
+        bool foundNonSpace = false;
+        for (auto c : line) {
+            if (!std::isspace(c) && c != '\n') {
+                foundNonSpace = true;
+                break;
+            }
+        }
+
+        if (!foundNonSpace) continue;
+
+        std::cout << line << std::endl;
+    }
 
     instructions.resize(11);
     instructions[0] = Build3R(inst_getComponent, reg_pc, reg_s0, reg_z);  // getComponent(pc, s0)    # s0 = pc.x
