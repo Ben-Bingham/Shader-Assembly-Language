@@ -12,12 +12,10 @@
 #include <utility/OpenGl/Buffer.h>
 #include <utility/OpenGl/RenderTarget.h>
 
-#include <utility/Camera.h>
 #include <utility/TimeScope.h>
 #include <utility/Transform.h>
 #include <utility/Geometry.h>
 
-#include "MoveCamera.h"
 #include "Boilerplate.h"
 #include <utility/OpenGl/SSBO.h>
 
@@ -88,11 +86,9 @@ int main() {
         "assets\\shaders\\assemblyParser.frag"
     };
 
-    Camera camera{ };
-
     VertexAttributeObject vao{ };
 
-    Shape square = GetSquare();
+    Shape square = GetSquare(1.0f);
 
     VertexBufferObject vbo{ square.vertices };
 
@@ -165,17 +161,17 @@ int main() {
     std::chrono::duration<double> frameTime{ };
     std::chrono::duration<double> renderTime{ };
 
-    bool mouseOverViewPort{ false };
-    glm::ivec2 viewportOffset{ 0, 0 };
+    // Bind everything
+    assemblyParser.Bind();
+    assemblyParser.SetVec3("screenSize", glm::vec3{ (float)rendererTarget.GetSize().x, (float)rendererTarget.GetSize().y, 0.0f });
+    assemblyParser.SetInt("instructionCount", instructions.size());
+
+    vao.Bind();
 
     while (!glfwWindowShouldClose(window)) {
         TimeScope frameTimeScope{ &frameTime };
 
         glfwPollEvents();
-
-        glm::ivec2 mousePositionWRTViewport{ mousePosition.x - viewportOffset.x, lastFrameViewportSize.y - (viewportOffset.y - mousePosition.y) };
-
-        MoveCamera(camera, window, static_cast<float>(frameTime.count()), mousePositionWRTViewport, lastFrameViewportSize, mouseOverViewPort);
 
         {
             TimeScope renderingTimeScope{ &renderTime };
@@ -185,17 +181,6 @@ int main() {
             glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            assemblyParser.Bind();
-            assemblyParser.SetVec3("screenSize", glm::vec3{ (float)rendererTarget.GetSize().x, (float)rendererTarget.GetSize().y, 0.0f});
-            assemblyParser.SetInt("instructionCount", instructions.size());
-
-            glm::mat4 projection = glm::perspective(glm::radians(camera.fov), (float)rendererTarget.GetSize().x / (float)rendererTarget.GetSize().y, camera.nearPlane, camera.farPlane);
-            transform.CalculateMatrix();
-            glm::mat4 mvp = projection * camera.View() * transform.matrix;
-
-            assemblyParser.SetMat4("mvp", mvp);
-
-            vao.Bind();
             glDrawElements(GL_TRIANGLES, square.Size(), GL_UNSIGNED_INT, nullptr);
 
             rendererTarget.Unbind();
@@ -220,10 +205,6 @@ int main() {
             // Display the frame with the last frames viewport size (The same size it was rendered with)
             ImGui::Image((ImTextureID)rendererTarget.GetTexture().Get(), ImVec2{ (float)lastFrameViewportSize.x, (float)lastFrameViewportSize.y }, ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f });
 
-            mouseOverViewPort = ImGui::IsItemHovered();
-
-            viewportOffset = glm::ivec2{ (int)ImGui::GetCursorPos().x, (int)ImGui::GetCursorPos().y };
-
         } ImGui::End(); // Viewport
 
         ImGuiEndFrame();
@@ -231,6 +212,8 @@ int main() {
         // After ImGui has rendered its frame, we resize the framebuffer if needed for next frame
         if (newViewportSize != lastFrameViewportSize) {
             rendererTarget.Resize(newViewportSize);
+
+            assemblyParser.SetVec3("screenSize", glm::vec3{ (float)rendererTarget.GetSize().x, (float)rendererTarget.GetSize().y, 0.0f });
         }
 
         lastFrameViewportSize = newViewportSize;
