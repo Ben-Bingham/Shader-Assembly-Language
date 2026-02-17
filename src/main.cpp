@@ -186,7 +186,6 @@ int main() {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             assemblyParser.Bind();
-            assemblyParser.SetVec3("color", glm::vec3{ 1.0f, 0.0f, 0.0f });
             assemblyParser.SetVec3("screenSize", glm::vec3{ (float)rendererTarget.GetSize().x, (float)rendererTarget.GetSize().y, 0.0f});
             assemblyParser.SetInt("instructionCount", instructions.size());
 
