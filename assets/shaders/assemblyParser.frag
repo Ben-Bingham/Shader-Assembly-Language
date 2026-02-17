@@ -4,9 +4,9 @@ out vec4 outFragColor;
 
 in vec2 uv;
 
-uniform vec3 color;
-
 uniform vec3 screenSize;
+
+uniform float time;
 
 // Registers:
 const uint reg_z = 0;
@@ -86,7 +86,7 @@ void main() {
 
 	registers[reg_pc] = vec4(uv.x * screenSize.x, uv.y * screenSize.y, 0.0, 0.0);
 	registers[reg_s] = vec4(screenSize.x, screenSize.y, 0.0, 0.0);
-	// TODO time register
+	registers[reg_t] = vec4(time, 0.0, 0.0, 0.0);
 
 	// Execute the instruction list
 	for (int i = 0; i < instructionCount; ++i) {
