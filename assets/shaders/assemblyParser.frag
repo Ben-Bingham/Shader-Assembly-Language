@@ -1,4 +1,4 @@
-#version 330 core
+#version 430 core
 
 out vec4 outFragColor;
 
@@ -37,14 +37,6 @@ const int inst_setComponent = 6;
 const int inst_load = 7;
 const int inst_readMemory = 8;
 const int inst_writeMemory = 9;
-
-struct Instruction {
-	int OpCode;
-	int r1;
-	int r2;
-	int r3;
-	int constant;
-};
 
 uint Build3R(int opcode, int r1, int r2, int r3) {
 	uint inst = 0u;
@@ -126,8 +118,12 @@ float GetConstant(uint instruction) {
 	return float(constant);
 }
 
-const int instructionCount = 11;
-uint instructions[instructionCount];
+const int instructionCount = 11; // TODO make uniform
+uint instructions[instructionCount]; // TODO remove
+
+layout(std430, binding = 0) readonly buffer InstructionsSSBO {
+    uint instructionsSSBO[];
+};
 
 vec4 registers[16];
 
@@ -135,22 +131,23 @@ void ExecuteInstruction(uint instruction, inout vec4 registers[16]);
 
 float memory[64];
 
+// TODO convert everything to uint
 void main() {
 	// Build the instructions list:
-	instructions[0] = Build3R(inst_getComponent, reg_pc, reg_s0, reg_z);  // getComponent(pc, s0)    # s0 = pc.x
-    instructions[1] = BuildRS(inst_load, reg_s5, 1);			            // load(s5, 1)             # s5 = 1
-	instructions[2] = Build3R(inst_getComponent, reg_pc, reg_s1, reg_s5); // getComponent(pc, s1)    # s1 = pc.y
-	
-	instructions[3] = Build3R(inst_getComponent, reg_s, reg_s3, reg_z);   // getComponent(s, s3, z)  # s3 = s.x
-	instructions[4] = Build2R(inst_reciprocal, reg_s3, reg_s2);           // reciprocal(s3, s2)      # s2 = 1 / s3
-	instructions[5] = Build3R(inst_getComponent, reg_s, reg_s4, reg_s5);  // getComponent(s, s4, s5) # s4 = s.y
-	instructions[6] = Build2R(inst_reciprocal, reg_s4, reg_s3);           // reciprocal(s4, s3)      # s3 = 1 / s4
-	
-	instructions[7] = Build3R(inst_multiply, reg_s0, reg_s2, reg_s0);     // multiply(s0, s2, s0)    # s0 = s0 * s2
-	instructions[8] = Build3R(inst_multiply, reg_s1, reg_s3, reg_s1);     // multiply(s1, s3, s1)    # s1 = s1 * s3
-	
-	instructions[9] = Build3R(inst_setComponent, reg_c, reg_s0, reg_z);   // setComponent(c, s0, z)  # c.x = s0
-	instructions[10] = Build3R(inst_setComponent, reg_c, reg_s1, reg_s5); // setComponent(c, s1, s5) # c.y = s1
+	//instructions[0] = Build3R(inst_getComponent, reg_pc, reg_s0, reg_z);  // getComponent(pc, s0)    # s0 = pc.x
+    //instructions[1] = BuildRS(inst_load, reg_s5, 1);			            // load(s5, 1)             # s5 = 1
+	//instructions[2] = Build3R(inst_getComponent, reg_pc, reg_s1, reg_s5); // getComponent(pc, s1)    # s1 = pc.y
+	//
+	//instructions[3] = Build3R(inst_getComponent, reg_s, reg_s3, reg_z);   // getComponent(s, s3, z)  # s3 = s.x
+	//instructions[4] = Build2R(inst_reciprocal, reg_s3, reg_s2);           // reciprocal(s3, s2)      # s2 = 1 / s3
+	//instructions[5] = Build3R(inst_getComponent, reg_s, reg_s4, reg_s5);  // getComponent(s, s4, s5) # s4 = s.y
+	//instructions[6] = Build2R(inst_reciprocal, reg_s4, reg_s3);           // reciprocal(s4, s3)      # s3 = 1 / s4
+	//
+	//instructions[7] = Build3R(inst_multiply, reg_s0, reg_s2, reg_s0);     // multiply(s0, s2, s0)    # s0 = s0 * s2
+	//instructions[8] = Build3R(inst_multiply, reg_s1, reg_s3, reg_s1);     // multiply(s1, s3, s1)    # s1 = s1 * s3
+	//
+	//instructions[9] = Build3R(inst_setComponent, reg_c, reg_s0, reg_z);   // setComponent(c, s0, z)  # c.x = s0
+	//instructions[10] = Build3R(inst_setComponent, reg_c, reg_s1, reg_s5); // setComponent(c, s1, s5) # c.y = s1
 
 	// Prepare registers
 	registers[reg_z] = vec4(0.0); // Zero out the zero register
@@ -162,7 +159,7 @@ void main() {
 
 	// Execute the instruction list
 	for (int i = 0; i < instructionCount; ++i) {
-		ExecuteInstruction(instructions[i], registers);
+		ExecuteInstruction(instructionsSSBO[i], registers);
 	}
 
 	outFragColor = registers[reg_c]; // Assign the final color to the color register
