@@ -15,24 +15,24 @@ Every program written in Shader Assembly will be executed for each and every pix
 * s0 -> s5: Scaler registers
 * v0 -> v4: Vector registers
 
-| Number | Name | Type | Read/Write | Use |
-|:---:|:---:|:---:|:---:|:---:|
-| 00 | z | Scaler | r | Returns zero |
-| 01 | s0 | Scaler | rw | - |
-| 02 | s1 | Scaler | rw | - |
-| 03 | s2 | Scaler | rw | - |
-| 04 | s3 | Scaler | rw | - |
-| 05 | s4 | Scaler | rw | - |
-| 06 | s5 | Vector | rw | - |
-| 07 | v0 | Vector | rw | - |
-| 08 | v1 | Vector | rw | - |
-| 09 | v2 | Vector | rw | - |
-| 10 | v3 | Vector | rw | - |
-| 11 | v4 | Vector | rw | - |
-| 12 | pc | Vector | r | Pixel coordinate |
-| 13 | t | Scaler | r | Time |
-| 14 | s | Vector | r | Size of screen in pixels |
-| 15 | c | Vector | w | Output color |
+| Number | Name | Type | Use |
+|:---:|:---:|:---:|:---:|
+| 00 | z | Scaler | Returns zero |
+| 01 | s0 | Scaler | - |
+| 02 | s1 | Scaler | - |
+| 03 | s2 | Scaler | - |
+| 04 | s3 | Scaler | - |
+| 05 | s4 | Scaler | - |
+| 06 | s5 | Vector | - |
+| 07 | v0 | Vector | - |
+| 08 | v1 | Vector | - |
+| 09 | v2 | Vector | - |
+| 10 | v3 | Vector | - |
+| 11 | v4 | Vector | - |
+| 12 | pc | Vector | Pixel coordinate |
+| 13 | t | Scaler | Time |
+| 14 | s | Vector | Size of screen in pixels |
+| 15 | c | Vector | Output color |
 
 ### Memory
 In addition to registers, each program has access to 64 scalers of memory accessible with the readMemory and writeMemory instructions
