@@ -9,18 +9,18 @@ uniform vec3 color;
 uniform vec3 screenSize;
 
 // Registers:
-const int reg_s0 = 0;
-const int reg_s1 = 1; 
-const int reg_s2 = 2; 
-const int reg_s3 = 3; 
-const int reg_s4 = 4; 
-const int reg_s5 = 5; 
-const int reg_v0 = 6; 
-const int reg_v1 = 7; 
-const int reg_v2 = 8; 
-const int reg_v3 = 9; 
-const int reg_v4 = 10; 
-const int reg_v5 = 11; 
+const int reg_z = 0;
+const int reg_s0 = 1; 
+const int reg_s1 = 2; 
+const int reg_s2 = 3; 
+const int reg_s3 = 4; 
+const int reg_s4 = 5; 
+const int reg_s5 = 6; 
+const int reg_v0 = 7; 
+const int reg_v1 = 8; 
+const int reg_v2 = 9; 
+const int reg_v3 = 10; 
+const int reg_v4 = 11; 
 const int reg_pc = 12; 
 const int reg_t = 13;
 const int reg_s = 14;
@@ -32,15 +32,11 @@ const int inst_multiply = 1;
 const int inst_negate = 2;
 const int inst_reciprocal = 3;
 const int inst_move = 4;
-const int inst_getComponent0 = 5;
-const int inst_getComponent1 = 6;
-const int inst_getComponent2 = 7;
-const int inst_getComponent3 = 8;
-const int inst_setComponent0 = 9;
-const int inst_setComponent1 = 10;
-const int inst_setComponent2 = 11;
-const int inst_setComponent3 = 12;
-const int inst_load = 13;
+const int inst_getComponent = 5;
+const int inst_setComponent = 6;
+const int inst_load = 7;
+const int inst_readMemory = 8;
+const int inst_writeMemory = 9;
 
 struct Instruction {
 	int OpCode;
@@ -50,30 +46,34 @@ struct Instruction {
 	float constant;
 };
 
-const int instructionCount = 10;
+const int instructionCount = 11;
 Instruction instructions[instructionCount];
 
 vec4 registers[16];
 
 void ExecuteInstruction(Instruction instruction, inout vec4 registers[16]);
 
+float memory[64];
+
 void main() {
 	// Build the instructions list:
-	instructions[0] = Instruction(inst_getComponent0, reg_pc, reg_s0, 0, 0.0); // getComponent0(pc, s0) # s0 = pc.x
-	instructions[1] = Instruction(inst_getComponent1, reg_pc, reg_s1, 0, 0.0); // getComponent1(pc, s1) # s1 = pc.y
+	instructions[0] = Instruction(inst_getComponent, reg_pc, reg_s0, reg_z, 0.0);  // getComponent(pc, s0)    # s0 = pc.x
+    instructions[1] = Instruction(inst_load, reg_s5, 0, 0, 1.0);			       // load(s5, 1)             # s5 = 1
+	instructions[2] = Instruction(inst_getComponent, reg_pc, reg_s1, reg_s5, 0.0); // getComponent(pc, s1)    # s1 = pc.y
 
-	instructions[2] = Instruction(inst_getComponent0, reg_s, reg_s3, 0, 0.0);  // getComponent0(s, s3)  # s3 = s.x
-	instructions[3] = Instruction(inst_reciprocal, reg_s3, reg_s2, 0, 0.0);    // reciprocal(s3, s2)    # s2 = 1 / s3
-	instructions[4] = Instruction(inst_getComponent1, reg_s, reg_s4, 0, 0.0);  // getComponent1(s, s4)  # s4 = s.y
-	instructions[5] = Instruction(inst_reciprocal, reg_s4, reg_s3, 0, 0.0);    // reciprocal(s4, s3)    # s3 = 1 / s4
+	instructions[3] = Instruction(inst_getComponent, reg_s, reg_s3, reg_z, 0.0);   // getComponent(s, s3, z)  # s3 = s.x
+	instructions[4] = Instruction(inst_reciprocal, reg_s3, reg_s2, 0, 0.0);        // reciprocal(s3, s2)      # s2 = 1 / s3
+	instructions[5] = Instruction(inst_getComponent, reg_s, reg_s4, reg_s5, 0.0);  // getComponent(s, s4, s5) # s4 = s.y
+	instructions[6] = Instruction(inst_reciprocal, reg_s4, reg_s3, 0, 0.0);        // reciprocal(s4, s3)      # s3 = 1 / s4
 
-	instructions[6] = Instruction(inst_multiply, reg_s0, reg_s2, reg_s0, 0.0); // multiply(s0, s2, s0)  # s0 = s0 * s2
-	instructions[7] = Instruction(inst_multiply, reg_s1, reg_s3, reg_s1, 0.0); // multiply(s1, s3, s1)  # s1 = s1 * s3
+	instructions[7] = Instruction(inst_multiply, reg_s0, reg_s2, reg_s0, 0.0);     // multiply(s0, s2, s0)    # s0 = s0 * s2
+	instructions[8] = Instruction(inst_multiply, reg_s1, reg_s3, reg_s1, 0.0);     // multiply(s1, s3, s1)    # s1 = s1 * s3
 
-	instructions[8] = Instruction(inst_setComponent0, reg_c, reg_s0, 0, 0.0);  // setComponent0(c, s0)  # c.x = s0
-	instructions[9] = Instruction(inst_setComponent1, reg_c, reg_s1, 0, 0.0);  // setComponent1(c, s1)  # c.y = s1
+	instructions[9] = Instruction(inst_setComponent, reg_c, reg_s0, reg_z, 0.0);   // setComponent(c, s0, z)  # c.x = s0
+	instructions[10] = Instruction(inst_setComponent, reg_c, reg_s1, reg_s5, 0.0); // setComponent(c, s1, s5) # c.y = s1
 
 	// Prepare registers
+	registers[reg_z] = vec4(0.0); // Zero out the zero register
 	registers[reg_c] = vec4(0.0); // Zero out the color register
 
 	registers[reg_pc] = vec4(uv.x * screenSize.x, uv.y * screenSize.y, 0.0, 0.0);
@@ -111,40 +111,32 @@ void ExecuteInstruction(Instruction instruction, inout vec4 registers[16]) {
 			registers[instruction.r2].x = registers[instruction.r1].x;
 			break;
 
-		case inst_getComponent0:
-			registers[instruction.r2].x = registers[instruction.r1].x;
+		case inst_getComponent:
+			float v1 = registers[instruction.r3].x;
+			int offset1 = int(floor(v1));
+			registers[instruction.r2].x = registers[instruction.r1][offset1];
 			break;
 
-		case inst_getComponent1:
-			registers[instruction.r2].x = registers[instruction.r1].y;
-			break;
-
-		case inst_getComponent2:
-			registers[instruction.r2].x = registers[instruction.r1].z;
-			break;
-
-		case inst_getComponent3:
-			registers[instruction.r2].x = registers[instruction.r1].w;
-			break;
-
-		case inst_setComponent0:
-			registers[instruction.r1].x = registers[instruction.r2].x;
-			break;
-
-		case inst_setComponent1:
-			registers[instruction.r1].y = registers[instruction.r2].x;
-			break;
-
-		case inst_setComponent2:
-			registers[instruction.r1].z = registers[instruction.r2].x;
-			break;
-
-		case inst_setComponent3:
-			registers[instruction.r1].w = registers[instruction.r2].x;
+		case inst_setComponent:
+			float v2 = registers[instruction.r3].x;
+			int offset2 = int(floor(v2));
+			registers[instruction.r1][offset2] = registers[instruction.r2].x;
 			break;
 		
 		case inst_load:
 			registers[instruction.r1].x = instruction.constant;
+			break;
+
+		case inst_readMemory:
+			float v3 = registers[instruction.r2].x;
+			int offset3 = int(floor(v3));
+			registers[instruction.r1].x = memory[offset3];
+			break;
+			
+		case inst_writeMemory:
+			float v4 = registers[instruction.r2].x;
+			int offset4 = int(floor(v4));
+			memory[offset4] = registers[instruction.r1].x;
 			break;
 	}
 }

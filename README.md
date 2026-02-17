@@ -90,8 +90,9 @@ Whenever a hashtag (#) is found, all characters including it to the end of the l
 ### Pixel UV Color
 Assign each pixels red component to be based on its x coordinate where pixels on the far left are black and on the far right are red, and assign the green component based on the pixels y coordinate so that pixels on the bottom are white and pixels at the top are green.
 
+```
 getComponent(pc, s0, z)   # s0 = pc.x
-load(s5, 1)				  # s5 = 1
+load(s5, 1)               # s5 = 1
 getComponent1(pc, s1, s5) # s1 = pc.y
 
 getComponent(s, s3, z)    # s3 = s.x
@@ -102,5 +103,6 @@ reciprocal(s4, s3)        # s3 = 1 / s4
 multiply(s0, s2, s0)      # s0 = s0 * s2
 multiply(s1, s3, s1)      # s1 = s1 * s3
 
-setComponent0(c, s0)      # c.x = s0
-setComponent1(c, s1)      # c.y = s1
+setComponent(c, s0, z)    # c.x = s0
+setComponent(c, s1, s5)   # c.y = s1
+```
