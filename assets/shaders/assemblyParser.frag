@@ -37,6 +37,7 @@ const uint inst_setComponent = 6;
 const uint inst_load = 7;
 const uint inst_readMemory = 8;
 const uint inst_writeMemory = 9;
+const uint inst_sign = 10;
 
 uint GetOpCode(uint instruction) {
 	return instruction >> 28;
