@@ -74,7 +74,7 @@ int main() {
     vbo.Unbind();
     ebo.Unbind();
 
-    std::string code = ReadFromFile("src\\ShaderAssembly\\uv.asm");
+    std::string code = ReadFromFile("src\\ShaderAssembly\\SphereIntersect.asm");
 
     instructions = Compile(code);
 
@@ -95,6 +95,8 @@ int main() {
 
     while (!glfwWindowShouldClose(window)) {
         TimeScope frameTimeScope{ &frameTime };
+
+        std::cout << frameTime.count() << std::endl;
 
         glfwPollEvents();
 
